@@ -1,0 +1,9 @@
+module.exports.userValidation = require("./user.validation");
+module.exports.restypeValidation = require("./restype.validation");
+module.exports.cityValidation = require("./city.validation");
+module.exports.orderValidation = require("./order.detail.validation");
+module.exports.stateValidation = require("./state.validation");
+module.exports.tokenValidation = require("./token.validation");
+module.exports.restaurantValidation = require("./restaurant.validation");
+module.exports.ownerValidation = require("./owner.validation");
+module.exports.itemValidation = require("./item.validation");

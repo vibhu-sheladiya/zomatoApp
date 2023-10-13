@@ -1,0 +1,13 @@
+module.exports.City = require("./city.model");
+module.exports.Gallery = require("./food.gallery.model");
+module.exports.Order = require("./order.detail.model");
+module.exports.Itemorder = require("./order.item.model");
+module.exports.Owner = require("./owner.detail.model");
+module.exports.Restaurant = require("./restaurant.detail.model");
+module.exports.Rtype = require("./restaurant.type.detail.model");
+module.exports.State = require("./state.model");
+module.exports.User = require("./user.model");
+module.exports.Admin = require("./admin.model");
+// module.exports.Otp = require("./verify.otp.model");
+// module.exports.UserSetting = require("./userSetting.model");
+module.exports.Token = require("./token.model");
