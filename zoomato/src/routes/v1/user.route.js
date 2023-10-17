@@ -9,6 +9,7 @@ router.post(
   // validate(userValidation.createUser),
   userController.register
 );
+router.post("/verify", userController.verifyOtp);
 
 // router.get("/list", userController.register);
 

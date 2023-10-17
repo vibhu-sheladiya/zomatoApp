@@ -11,4 +11,6 @@ module.exports.restaurantDetailService = require("./restaurant.detail.service");
 module.exports.restaurantTypeService = require("./restaurant.type.service");
 module.exports.stateService = require("./state.service");
 module.exports.adminService = require("./admin.service");
-// module.exports.verifyOtpService = require("./verify.otp.service");
+module.exports.emailService = require("./email.service");
+
+module.exports.verifyOtpService = require("./verify.otp.service");

@@ -7,7 +7,7 @@ const otpSchema = new mongoose.Schema(
       trim: true,
     },
     // user name
-    state_phone: {
+    otp: {
       type: String,
       trim: true,
     },
