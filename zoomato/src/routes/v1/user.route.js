@@ -9,6 +9,13 @@ router.post(
   // validate(userValidation.createUser),
   userController.register
 );
+
+router.post(
+  "/token",
+  // body("password").isLength({min: 7}).withMessage('Password needs to be atleast 7 character long'),
+  userController.resetPassword
+);
+// router.post("/reset", userController.sendResetLink);
 router.post("/verify", userController.verifyOtp);
 
 // router.get("/list", userController.register);

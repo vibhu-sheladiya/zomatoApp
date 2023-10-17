@@ -157,12 +157,12 @@ const getAllUser = async (req, res) => {
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const user = await verifyOtpService.findOtpByOtp({otp});
+    const user = await verifyOtpService.findOtpByOtp({ otp });
     console.log("user", user);
     if (!user) {
       throw new Error("Invalid OTP entered!");
     }
-    const findEmail = await verifyOtpService.findOtpByEmail({email});
+    const findEmail = await verifyOtpService.findOtpByEmail({ email });
     console.log("findEmail", findEmail);
 
     if (!findEmail) {
@@ -170,7 +170,11 @@ const verifyOtp = async (req, res) => {
     }
 
     if (findEmail.otp === otp) {
-      return res.status(200).json({ success: true,message:"your otp is right thank you",data: user});
+      return res.status(200).json({
+        success: true,
+        message: "your otp is right thank you",
+        data: user,
+      });
     } else {
       return res.status(401).json({ success: false, message: "Invalid OTP" });
     }
@@ -178,6 +182,96 @@ const verifyOtp = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+/**forgot password */
+
+async function resetPassword(req, res, next) {
+  try {
+    const { token } = req.params;
+    verify(token, process.env.EMAIL_SECRET, async function (err, decoded) {
+      //Check if token is valid
+      if (err) {
+        res.status(400).json({
+          message: "Invalid token!",
+        });
+
+        //Request body validation result. Throw error for invalid values.
+        const errors = validationResult(req);
+        if (!errors.isEmpty())
+          return res.status(400).json({ errors: errors.array() });
+
+        //For get request send a password changing form
+        if (req.method === "GET") {
+          res.status(200).send(passwordResetInput(token));
+        }
+        //For post request reset given password
+      } else if (req.method === "POST") {
+        const payload = decoded;
+        const { password } = req.body;
+        const hashPassword = await hash(password, 10);
+
+        if (payload && payload._id) {
+          await User.findByIdAndUpdate(payload._id, {
+            password: hashPassword,
+          });
+          res.status(201).json({ message: "Password changed successfully." });
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+// const forgotPassword = async (req,res)=>{
+//   try{
+//     console.log('inside forgetpassword');
+//     console.log(req.params,'this is the params')
+//     console.log(req.query,"this is query")
+//     let token=await jwt.sign({_id:req.params._id},process.env.SECRETKEY,{expiresIn:
+//       '3h'})
+//       console.log(token,'this is tokeennnn')
+//       var transporter = nodemailer.createTransport({
+//         service:'gmail',
+//         auth:{
+//           user:`${process.env.EMAIL}`,
+//           pass:`${process.env.PASSWORD}`
+//           }
+//           })
+//           var mailOptions={
+//             from:`${process.env.EMAIL}`,
+//             to:`${req.query.email}`,
+//             subject :'reset your password ',
+//             text:`http://localhost:8000/api/auth/change-password?token=${token} `
+//             }
+//             transporter.sendMail(mailOptions,(err,info)=>{
+//               if(!err){
+//                 console.log(`Message sent ${info.response}`);
+
+// const forgetPassword = async (req, res) => {
+//   try {
+//     const email = req.body.email;
+//     const userdata = await userService.findUserByEmail({ email });
+//     if (!userdata) {
+//       // const randomString = randomString.generate();
+//       const data = await userService.findUserAndUpdate(userdata.email, token);
+//       sendResetPasswordMail(userdata.first_name, userdata.email, randomString);
+//       res
+//         .status(200)
+//         .json({
+//           success: true,
+//           message: "please check your inbox",
+//           data: userdata,
+//         });
+//     } else {
+//       res
+//         .status(404)
+//         .json({ success: true, message: "this eamial does not exists" });
+//     }
+//   } catch (error) {
+//     res.status(400).json({ success: false, message: error.message });
+//   }
+// };
 
 /** Get user list */
 const getUserList = async (req, res) => {
@@ -282,4 +376,5 @@ module.exports = {
   updateDetails,
   deleteUser,
   sendMail,
+  resetPassword,
 };
