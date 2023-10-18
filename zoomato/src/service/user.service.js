@@ -33,11 +33,18 @@ const deleteUser = async (userId) => {
 const findUserByEmail = async (email) => {
   return await User.findOne(email);
 };
+const findByEmail = async (email) => {
+  return await User.findOne({ email });
+};
 const findUserByOtp = async (otp) => {
   return await User.findOne(otp);
 };
 const deleteUserByEmail = async (email) => {
   return User.findOneAndDelete({ email: email });
+};
+
+const updatePassword = async (userId, newPassword) => {
+  return User.findByIdAndUpdate(userId, { password: newPassword });
 };
 module.exports = {
   createUser,
@@ -49,4 +56,7 @@ module.exports = {
   findUserByEmail,
   deleteUserByEmail,
   findUserAndUpdate,
+  findByEmail,
+  updatePassword,
+
 };

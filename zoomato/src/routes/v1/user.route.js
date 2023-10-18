@@ -11,12 +11,13 @@ router.post(
 );
 
 router.post(
-  "/token",
+  "/forgot",
   // body("password").isLength({min: 7}).withMessage('Password needs to be atleast 7 character long'),
-  userController.resetPassword
+  userController.forgetPassword
 );
-// router.post("/reset", userController.sendResetLink);
+router.post("/reset", userController.resetPassword);
 router.post("/verify", userController.verifyOtp);
+router.post("/change-pass", userController.changePassword);
 
 // router.get("/list", userController.register);
 

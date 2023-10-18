@@ -18,6 +18,7 @@ const sendMail = async (to, data, subject) => {
       to,
       subject,
       html: data,
+      // text:`http://localhost:8000/api/auth/change-password?token=${token} `
     });
   } catch (error) {
     return false;
