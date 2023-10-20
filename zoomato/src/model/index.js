@@ -11,3 +11,4 @@ module.exports.Admin = require("./admin.model");
 module.exports.Otp = require("./verify.otp.model");
 // module.exports.UserSetting = require("./userSetting.model");
 module.exports.Token = require("./token.model");
+module.exports.Login = require("./login.model");

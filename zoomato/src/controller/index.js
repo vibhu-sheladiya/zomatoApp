@@ -8,3 +8,4 @@ module.exports.ownerController = require("../controller/owner.controller");
 module.exports.restaurantController = require("../controller/restaurant.controller");
 module.exports.stateController = require("../controller/state.controller");
 module.exports.galleryController = require("../controller/food.gallery.controller");
+module.exports.googleController = require("../controller/login.google.controller");

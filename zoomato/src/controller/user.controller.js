@@ -5,7 +5,8 @@ const bcrypt = require("bcrypt");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const jwtSecrectKey = "cdccsvavsvfssbtybnjnu";
-const {auth} = require("../middleware/auth2");
+const { auth } = require("../middleware/auth2");
+const User = require("../model/user.model");
 // const config = "../config/config.js";
 
 const register = async (req, res) => {
@@ -27,7 +28,7 @@ const register = async (req, res) => {
     exp: moment().add(1, "days").unix(),
   };
 
-  const token = await jwt.sign(option, jwtSecrectKey);
+  const token = await jwt.sign(option, process.env.jwtSecrectKey);
 
   const filter = {
     email,
@@ -116,66 +117,44 @@ const verifyOtp = async (req, res) => {
 };
 const changePassword = async (req, res) => {
   try {
-    const { token, newPassword, confirmPassword } = req.body;
-      if (!checkToken) {
-          throw new Error("Please login again to update your password");
-        }
-      if (newPassword !== confirmPassword) {
-        throw new Error("New Password and Confirm Password are different");
-        }
-        let hashedPassword=await bcrypt.hashSync(newPassword, 8);
-        const updatedData={password:hashedPassword}
-        const result=await userService.updateOne({_id:decodedToken._id},updatedData);
-        if(!result){
-          throw new Error('Failed to Update Password');
-          }else{
-            return res.status(200).send({success:true,data:'Successfully Updated Password'});
-            }
-            } catch (error) {
-              res.status(500).json({ error: error.message });
-              }
-              };
-//     if (!token) {
-//       return res.status(400).json({ error: 'JWT token must be provided' });
-//     }
-    
-//     try {
-//       const decodedToken = jwt.verify(token, process.env.JWTSECRETKEY);
+    const { oldpass, newpass, confirmpass } = req.body;
+    console.log(req.body,'++++++++++++++');
+    // Fetch the user data using a unique identifier (e.g., user_id or email)
+   // Assuming you have user data in the request object
+    // console.log(user_id, "+++++++++++++++++++++++++");
+    const user = await User.findById(req.user._id);
 
-//       if (newPassword !== confirmPassword) {
-//         return res.status(400).json({ error: 'Passwords do not match' });
-//       }
-//       const user = await userService.findUserById(decodedToken.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-//       if (!user) {
-//         return res.status(404).json({ error: 'User not found' });
-//       }
-//       const hashedPassword = await hashPassword(newPassword);
-//       await userService.updatePassword(user._id, hashedPassword);
-//       res.status(200).json({ message: 'Password updated successfully' });
-//     } catch (error) {
-//       return res.status(400).json({ error: 'Invalid JWT token' });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-//    const decodedToken= await auth(req.headers.token);
+    // Verify the old password
+    const isPasswordCorrect = await bcrypt.compare(oldpass, user.password);
 
-//     if (newPassword !== confirmPassword) {
-//       return res.status(400).json({ error: "Passwords do not match" });
-//     }
-//     const user = await userService.getUserById(decodedToken.userId);
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-//     const hashedPassword = await hashPassword(newPassword);
-//     await userService.updatePassword(user._id, hashedPassword);
-//     res.status(200).json({ message: "Password updated successfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ error: "Incorrect old password" });
+    }
+
+    // Check if the new password and confirm password match
+    if (newpass !== confirmpass) {
+      return res
+        .status(400)
+        .json({ error: "New password and confirm password do not match" });
+    }
+
+    // Hash the new password and update it in the database
+    const hashedPassword = await bcrypt.hash(newpass, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 
 /**forgot password */
@@ -218,35 +197,7 @@ const forgetPassword = async (req, res) => {
   }
 };
 
-/**reset password */
-// const resetPassword = async (req, res) => {
-//   try {
-//     const { email, password } = req.query;
-//     const user=await userService.findByEmail(email);
-//     if(!user){
-//       return res.status(400).json({success:false,message:"Invalid credentials"})
-//     }
-//     const hashedPassword = bcrypt.hashSync(password, 8);
-//     user.password = hashedPassword;
-//     await user.save();
-//     res.status(200).json({
-//       success:true,
-//       message:'Password updated successfully',
-//       })
-//     const decodedToken = jwt.verify(token, process.env.JWTSECRETKEY);
-//     const updatePassword = await userService.updatePassword(
-//       decodedToken._id,
-//       password
-//     );
-//     res.status(200).json({
-//       success: true,
-//       message: "password updated successfully!",
-//       data: updatePassword,
-//     });
-//   } catch (error) {
-//     res.status(400).json({ success: false, message: error.message });
-//   }
-// };
+
 const resetPassword = async (req, res) => {
   try {
     const { email, newPassword, confirmPassword } = req.body;
@@ -328,47 +279,7 @@ const updateDetails = async (req, res) => {
   }
 };
 
-/**change password */
-// const changePassword = async (req, res) => {
-//   try {
-//     const { token, newPassword, confirmPassword } = req.body;
 
-//     const decodedToken = verifyToken(token,jwtSecrectKey);
-
-//     if (newPassword !== confirmPassword) {
-//       return res.status(400).json({ error: "Passwords do not match" });
-//     }
-//     const user = await userService.getUserById(decodedToken.userId);
-//     if (!user) {
-//       return res.status(404).json({ error: "User not found" });
-//     }
-//     const hashedPassword = await hashPassword(newPassword);
-//     await userService.updatePassword(user._id, hashedPassword);
-//     res.status(200).json({ message: "Password updated successfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-//     const resetToken = await userService.findUserAndUpdate({
-//       userId: id,
-//       token,
-//     });
-//     if (!resetToken) {
-//       return res.status(404).send({ message: "INVALID LINK!!!" });
-//     }
-//     const userExists = await userService.getUserById(userId);
-//     if (!userExists) {
-//       throw new Error("User not found!");
-//     }
-//     await userService.changePassword(userId, req.body);
-//     res
-//       .status(200)
-//       .json({ success: true, message: "password changed successfully" });
-//   } catch (error) {
-//     console.log("err", error);
-//     res.status(400).json({ success: false, message: error.message });
-//   }
-// };
 /** Delete user */
 const deleteUser = async (req, res) => {
   try {

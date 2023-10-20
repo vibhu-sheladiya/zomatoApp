@@ -5,6 +5,7 @@ const config = require("../config/config");
 const auth = () => async (req, res, next) => {
   try {
     const token = req.headers.authorization;
+    console.log(token, " 8888888  token token token token token token");
     if (!token) {
       return next(
         res.status(401).json({
@@ -18,12 +19,12 @@ const auth = () => async (req, res, next) => {
       token.replace("Bearer ", ""),
       config.jwt.secret_key
     );
-
+    console.log(decoded);
     if (!decoded) {
+      return next(new Error("Please enter valid token!"));
     }
-    console.log(decoded, "decoded");
-    const user = await User.findOne({ _id: decoded.user });
 
+    const user = await User.findOne({ email: decoded.email });
     if (!user) {
       return next(new Error("Please authenticate!"));
     }
@@ -31,7 +32,12 @@ const auth = () => async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    return next(new Error(error));
+    return next(
+      res.status(401).json({
+        status: 400,
+        message: error.message,
+      })
+    );
   }
 };
 

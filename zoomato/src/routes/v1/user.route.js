@@ -1,5 +1,6 @@
 const express = require("express");
 const { userController } = require("../../controller");
+const auth = require("../../middleware/auth");
 // const { userValidation } = require("../../validation");
 // const validate = require("../../middleware/validate");
 const router = express.Router();
@@ -17,9 +18,9 @@ router.post(
 );
 router.post("/reset", userController.resetPassword);
 router.post("/verify", userController.verifyOtp);
-router.post("/change-pass", userController.changePassword);
+router.post("/change-pass/:_id",auth(), userController.changePassword);
 
-// router.get("/list", userController.register);
+router.get("/list",auth(), userController.getUserList);
 
 router.post("/login", userController.login);
 // router.get("/id/:", rtypeController.getRestaurantTypeDetails);
